@@ -20,7 +20,7 @@ use gorriecoe\LinkField\LinkField;
 class ElementPublicationList extends ElementContent
 {
 
-    //private static $inline_editable = false;
+    private static $inline_editable = false;
 
     private static $table_name = 'ElementPublicationList';
 
