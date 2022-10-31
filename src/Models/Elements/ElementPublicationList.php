@@ -19,7 +19,6 @@ use gorriecoe\LinkField\LinkField;
  */
 class ElementPublicationList extends ElementContent
 {
-
     private static $inline_editable = false;
 
     private static $table_name = 'ElementPublicationList';
@@ -53,11 +52,8 @@ class ElementPublicationList extends ElementContent
         $fields = parent::getCMSFields();
 
         if (!$this->ID) {
-
             $fields->addFieldToTab('Root.Main', LiteralField::create('NewPubsMessage', '<span class="message validation">Set a title and save this block before images.</span>'), 'HTML');
-
         } else {
-
             $sortType = DropdownField::create(
                 'SortType',
                 'Sort listing by',
@@ -88,7 +84,6 @@ class ElementPublicationList extends ElementContent
             $fields->addFieldToTab('Root.Main', $sortDir);
             $fields->addFieldToTab('Root.Files', $files);
             $fields->addFieldToTab('Root.Links', $links);
-
         }
 
         return $fields;
@@ -135,5 +130,4 @@ class ElementPublicationList extends ElementContent
             }
         }
     }
-
 }
