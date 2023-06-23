@@ -9,7 +9,7 @@
                 <% if $Extension %>
                     <li><a href="$Link">$Title</a> ($Extension.UpperCase, $Size)</li>
                 <% else %>
-                    <li>{$forTemplate}</li>
+                    <li>{$Me}</li>
                 <% end_if %>
             <% end_loop %>
         </ul>
