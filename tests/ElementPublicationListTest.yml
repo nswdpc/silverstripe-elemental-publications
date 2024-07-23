@@ -1,0 +1,30 @@
+gorriecoe\Link\Models\Link:
+  link1:
+    Title: 'Link 1'
+    Type: 'URL'
+    URL: 'https://example.org'
+  link2:
+    Title: 'Link 2'
+    Type: 'URL'
+    URL: 'https://example.com'
+  link3:
+    Title: 'Link 3'
+    Type: 'URL'
+    URL: 'https://example.net'
+SilverStripe\Assets\File:
+  file1:
+    FileFilename: FileTest1.txt
+    Name: FileTest1.txt
+  file2:
+    FileFilename: FileTest2.txt
+    Name: FileTest2.txt
+NSWDPC\Elemental\Models\Publications\ElementPublicationList:
+  list1:
+    Title: 'List 1'
+    Files:
+      - '=>SilverStripe\Assets\File.file1'
+      - '=>SilverStripe\Assets\File.file2'
+    Links:
+      - '=>gorriecoe\Link\Models\Link.link1'
+      - '=>gorriecoe\Link\Models\Link.link2'
+      - '=>gorriecoe\Link\Models\Link.link3'
