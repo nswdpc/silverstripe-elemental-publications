@@ -8,7 +8,9 @@ See composer.json
 
 ## Installation
 
-`composer require nswdpc/silverstripe-elemental-publications`
+```
+composer require nswdpc/silverstripe-elemental-publications
+```
 
 ## License
 
