@@ -3,7 +3,7 @@
 namespace NSWDPC\Elemental\Models\Publications;
 
 use DNADesign\Elemental\Models\ElementContent;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Forms\LiteralField;
@@ -43,7 +43,7 @@ class ElementPublicationList extends ElementContent
     /**
      * @inheritdoc
      */
-    private static string $description = 'Create a list of publications';
+    private static string $class_description = 'Create a list of publications';
 
     /**
      * @inheritdoc
