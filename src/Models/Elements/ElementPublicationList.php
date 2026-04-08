@@ -3,12 +3,9 @@
 namespace NSWDPC\Elemental\Models\Publications;
 
 use DNADesign\Elemental\Models\ElementContent;
-use SilverStripe\View\ArrayData;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
-use SilverStripe\Assets\Folder;
-use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\DropdownField;
 use gorriecoe\Link\Models\Link;
@@ -23,7 +20,6 @@ use gorriecoe\LinkField\LinkField;
  */
 class ElementPublicationList extends ElementContent
 {
-
     /**
      * @inheritdoc
      */
@@ -90,17 +86,18 @@ class ElementPublicationList extends ElementContent
     /**
      * @var string
      */
-    const DEFAULT_SORT_TYPE = 'Title';
+    public const DEFAULT_SORT_TYPE = 'Title';
 
     /**
      * @var string
      */
-    const DEFAULT_SORT_DIR = 'ASC';
+    public const DEFAULT_SORT_DIR = 'ASC';
 
     /**
      * Return available sort options
      */
-    public static function getSortOptions() : array {
+    public static function getSortOptions(): array
+    {
         return [
             'Title'      => _t(self::class . '.SORT_LISTING_BY_TITLE', 'Title'),
             'Name'       => _t(self::class . '.SORT_LISTING_BY_FILENAME', 'File name'),
@@ -112,7 +109,8 @@ class ElementPublicationList extends ElementContent
     /**
      * Return available sort directions
      */
-    public static function getSortDirections() : array {
+    public static function getSortDirections(): array
+    {
         return [
             'ASC'  => _t(self::class . '.SORT_DIRECTION_ASC', 'Ascending'),
             'DESC' => _t(self::class . '.SORT_DIRECTION_DESC', 'Descending')
@@ -122,7 +120,8 @@ class ElementPublicationList extends ElementContent
     /**
      * Return sort option label
      */
-    public static function getSortLabel(string $sortOption) : string {
+    public static function getSortLabel(string $sortOption): string
+    {
         $options = static::getSortOptions();
         return $options[$sortOption] ?? '';
     }
@@ -141,7 +140,7 @@ class ElementPublicationList extends ElementContent
                 LiteralField::create(
                     'NewPubsMessage',
                     '<p class="message validation">'
-                    . _t(self::class . '.SAVE_BEFORE_UPLOAD','Set a title and save this block before images.')
+                    . _t(self::class . '.SAVE_BEFORE_UPLOAD', 'Set a title and save this block before images.')
                     . '</p>'
                 ),
                 'HTML'
@@ -166,13 +165,13 @@ class ElementPublicationList extends ElementContent
 
             $files = UploadField::create(
                 'Files',
-                _t(self::class . '.FILES','Files')
+                _t(self::class . '.FILES', 'Files')
             )->setAllowedFileCategories('document')
             ->setFolderName("Uploads/publications/{$this->Title}-{$this->ID}");
 
             $links = LinkField::create(
                 'Links',
-                _t(self::class . '.LINKS','Links'),
+                _t(self::class . '.LINKS', 'Links'),
                 $this
             );
 
@@ -197,29 +196,29 @@ class ElementPublicationList extends ElementContent
     /**
      * Return items
      */
-    public function getItems() : ArrayList
+    public function getItems(): ArrayList
     {
         $list = ArrayList::create();
         $files = $this->Files();
         $links = $this->Links();
-        if($files) {
+        if ($files) {
             $list->merge($files->toArray());
         }
 
-        if($links) {
+        if ($links) {
             $list->merge($links->toArray());
         }
 
         // check values
         $type = $this->SortType ?: static::DEFAULT_SORT_TYPE;
         $options = static::getSortOptions();
-        if(!array_key_exists($type, $options)) {
+        if (!array_key_exists($type, $options)) {
             $type = static::DEFAULT_SORT_TYPE;
         }
 
         $direction = $this->SortDir ?: static::DEFAULT_SORT_DIR;
         $directions = static::getSortDirections();
-        if(!array_key_exists($direction, $directions)) {
+        if (!array_key_exists($direction, $directions)) {
             $direction = static::DEFAULT_SORT_DIR;
         }
 
