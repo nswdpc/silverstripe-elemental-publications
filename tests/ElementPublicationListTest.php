@@ -39,11 +39,12 @@ class ElementPublicationListTest extends SapphireTest {
         }
     }
 
-    public function testItemListing() {
+    public function testItemListing(): void {
         $element = $this->objFromFixture(ElementPublicationList::class, 'list1');
         $element->SortType = 'Title';
         $element->SortDir = 'ASC';
         $element->write();
+
         $items = $element->getItems();
         $this->assertEquals(5, $items->count());// per fixture
 
