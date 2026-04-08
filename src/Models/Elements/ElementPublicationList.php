@@ -3,7 +3,7 @@
 namespace NSWDPC\Elemental\Models\Publications;
 
 use DNADesign\Elemental\Models\ElementContent;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Forms\LiteralField;
