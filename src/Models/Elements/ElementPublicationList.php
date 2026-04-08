@@ -43,7 +43,7 @@ class ElementPublicationList extends ElementContent
     /**
      * @inheritdoc
      */
-    private static string $description = 'Create a list of publications';
+    private static string $class_description = 'Create a list of publications';
 
     /**
      * @inheritdoc
