@@ -192,8 +192,8 @@ class ElementPublicationList extends ElementContent
             $fields->addFieldToTab('Root.Links', $coreLinkField);
 
             // If unmigrated links are available
-            $hasUnmigratedLinks = $this->Links()->filter(['IsMigrated' => 0])->count() > 0;
-            if ($hasUnmigratedLinks) {
+            $hasUnmigratedLinks = $this->getManyManyComponents('Links')->filter(['IsMigrated' => 0]);
+            if ($hasUnmigratedLinks->count() > 0) {
                 $fields->insertAfter(
                     'CoreLinks',
                     LinkField::create(
