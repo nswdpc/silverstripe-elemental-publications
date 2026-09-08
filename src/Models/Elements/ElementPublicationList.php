@@ -226,7 +226,7 @@ class ElementPublicationList extends ElementContent
                 $link = $migratedLink;
             }
         }
-        $result->push($migratedLink);
+        $result->push($link);
         return $result;
     }
 
