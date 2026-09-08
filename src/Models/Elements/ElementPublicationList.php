@@ -10,6 +10,9 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\DropdownField;
 use gorriecoe\Link\Models\Link;
 use gorriecoe\LinkField\LinkField;
+use SilverStripe\LinkField\Models\Link as CoreLink;
+use SilverStripe\LinkField\Form\LinkField as CoreLinkField;
+use SilverStripe\LinkField\Form\MultiLinkField as CoreMultiLinkField;
 
 /**
  * Elemental content block for publications listing
@@ -72,6 +75,13 @@ class ElementPublicationList extends ElementContent
     /**
      * @inheritdoc
      */
+    private static array $has_many = [
+        'CoreLinks' => CoreLink::class . '.Owner'
+    ];
+
+    /**
+     * @inheritdoc
+     */
     private static array $many_many_extraFields = [
         'Links' => [
             'Sort' => 'Int'
@@ -81,7 +91,10 @@ class ElementPublicationList extends ElementContent
     /**
      * @inheritdoc
      */
-    private static array $owns = ['Files'];
+    private static array $owns = [
+        'Files',
+        'CoreLinks'
+    ];
 
     /**
      * @var string
@@ -163,25 +176,58 @@ class ElementPublicationList extends ElementContent
                 _t(self::class . '.SORT_DIRECTION_CHOOSE', 'Choose')
             );
 
-            $files = UploadField::create(
+            $fileField = UploadField::create(
                 'Files',
                 _t(self::class . '.FILES', 'Files')
             )->setAllowedFileCategories('document')
             ->setFolderName("Uploads/publications/{$this->Title}-{$this->ID}");
 
-            $links = LinkField::create(
-                'Links',
-                _t(self::class . '.LINKS', 'Links'),
-                $this
+
+            // Show core links field for adding new links
+            $fields->removeByName(['CoreLinks','Links']);
+            $coreLinkField = CoreMultiLinkField::create(
+                'CoreLinks',
+                _t(self::class . '.LINKS', 'Links')
             );
+            $fields->addFieldToTab('Root.Links', $coreLinkField);
+
+            // If unmigrated links are available
+            $hasUnmigratedLinks = $this->Links()->filter(['IsMigrated' => 0])->count() > 0;
+            if ($hasUnmigratedLinks) {
+                $fields->insertAfter(
+                    'CoreLinks',
+                    LinkField::create(
+                        'Links',
+                        _t(self::class . '.LINKS_LEGACY', 'Links (legacy)'),
+                        $this
+                    )
+                );
+            }
 
             $fields->addFieldToTab('Root.Main', $sortType);
             $fields->addFieldToTab('Root.Main', $sortDir);
-            $fields->addFieldToTab('Root.Files', $files);
-            $fields->addFieldToTab('Root.Links', $links);
+            $fields->addFieldToTab('Root.Files', $fileField);
         }
 
         return $fields;
+    }
+
+    /**
+     * Return the links as an ArrayList
+     */
+    public function getLinks(): \SilverStripe\Model\List\ArrayList
+    {
+        $result = ArrayList::create();
+        $oldLinks = $this->getManyManyComponents('Links')->sort(['Sort' => 'ASC']);
+        foreach ($oldLinks as $oldLink) {
+            $link = $oldLink;
+            if($oldLink->IsMigrated == 1 && (($migratedLink = $oldLink->MigratedLink()) && $migratedLink->isInDB())) {
+                // use the migrated target
+                $link = $migratedLink;
+            }
+        }
+        $result->push($migratedLink);
+        return $result;
     }
 
     /**
