@@ -213,21 +213,29 @@ class ElementPublicationList extends ElementContent
     }
 
     /**
-     * Return the links as an ArrayList
+     * Return the links as a list for templates
      */
-    public function getLinks(): \SilverStripe\Model\List\ArrayList
+    public function getLinks(): \SilverStripe\Model\List\SS_List
     {
-        $result = ArrayList::create();
-        $oldLinks = $this->getManyManyComponents('Links')->sort(['Sort' => 'ASC']);
-        foreach ($oldLinks as $oldLink) {
-            $link = $oldLink;
-            if($oldLink->IsMigrated == 1 && (($migratedLink = $oldLink->MigratedLink()) && $migratedLink->isInDB())) {
-                // use the migrated target
-                $link = $migratedLink;
-            }
+        $coreLinks = $this->CoreLinks()->sort(['Sort' => 'ASC']);
+        $unmigratedLinks = $this->getManyManyComponents('Links')->filter(['IsMigrated' => 0]);
+        if($unmigratedLinks->count() == 0) {
+            // all migrated, show all core button links found
+            return $coreLinks;
         }
-        $result->push($link);
-        return $result;
+
+        $result = ArrayList::create();
+        // get all new 'core' button links
+        foreach($coreLinks as $coreLink) {
+            $result->push($coreLink);
+        }
+        // add on any unmigrated buttons
+        foreach($unmigratedLinks as $unmigratedLink) {
+            // not yet migrated
+            $result->push($unmigratedLink);
+        }
+        // return sorted result
+        return $result->sort(['Sort' => 'ASC']);
     }
 
     /**
@@ -246,12 +254,12 @@ class ElementPublicationList extends ElementContent
     {
         $list = ArrayList::create();
         $files = $this->Files();
-        $links = $this->Links();
-        if ($files) {
+        $links = $this->getLinks();
+        if ($files->count() > 0) {
             $list->merge($files->toArray());
         }
 
-        if ($links) {
+        if ($links->count() > 0) {
             $list->merge($links->toArray());
         }
 
@@ -268,7 +276,7 @@ class ElementPublicationList extends ElementContent
             $direction = static::DEFAULT_SORT_DIR;
         }
 
-        return $list->sort($type, $direction);
+        return $list->sort([$type => $direction]);
     }
 
     /**
