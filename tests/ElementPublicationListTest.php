@@ -6,7 +6,6 @@ use NSWDPC\Elemental\Models\Publications\ElementPublicationList;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Dev\TestAssetStore;
 use SilverStripe\Dev\SapphireTest;
-use SilverStripe\ORM\DataObject;
 use SilverStripe\Versioned\Versioned;
 
 /**

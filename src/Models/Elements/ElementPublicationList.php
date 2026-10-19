@@ -11,7 +11,6 @@ use SilverStripe\Forms\DropdownField;
 use gorriecoe\Link\Models\Link;
 use gorriecoe\LinkField\LinkField;
 use SilverStripe\LinkField\Models\Link as CoreLink;
-use SilverStripe\LinkField\Form\LinkField as CoreLinkField;
 use SilverStripe\LinkField\Form\MultiLinkField as CoreMultiLinkField;
 
 /**
@@ -220,19 +219,19 @@ class ElementPublicationList extends ElementContent
     {
         $coreLinks = $this->CoreLinks()->sort(['Sort' => 'ASC']);
         $unmigratedLinks = $this->getManyManyComponents('Links')->filter(['IsMigrated' => 0]);
-        if($unmigratedLinks->count() == 0) {
+        if ($unmigratedLinks->count() == 0) {
             // all migrated, show all core button links found
             return $coreLinks;
         }
 
         $result = ArrayList::create();
         // get all new 'core' button links
-        foreach($coreLinks as $coreLink) {
+        foreach ($coreLinks as $coreLink) {
             $result->push($coreLink);
         }
 
         // add on any unmigrated buttons
-        foreach($unmigratedLinks as $unmigratedLink) {
+        foreach ($unmigratedLinks as $unmigratedLink) {
             // not yet migrated
             $result->push($unmigratedLink);
         }
