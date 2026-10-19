@@ -20,6 +20,7 @@ use SilverStripe\LinkField\Form\MultiLinkField as CoreMultiLinkField;
  * @property ?string $SortDir
  * @method \SilverStripe\ORM\ManyManyList<\SilverStripe\Assets\File> Files()
  * @method \SilverStripe\ORM\ManyManyList<\gorriecoe\Link\Models\Link> Links()
+ * @method \SilverStripe\ORM\HasManyList<\SilverStripe\LinkField\Models\Link> CoreLinks()
  */
 class ElementPublicationList extends ElementContent
 {
@@ -229,11 +230,13 @@ class ElementPublicationList extends ElementContent
         foreach($coreLinks as $coreLink) {
             $result->push($coreLink);
         }
+
         // add on any unmigrated buttons
         foreach($unmigratedLinks as $unmigratedLink) {
             // not yet migrated
             $result->push($unmigratedLink);
         }
+
         // return sorted result
         return $result->sort(['Sort' => 'ASC']);
     }

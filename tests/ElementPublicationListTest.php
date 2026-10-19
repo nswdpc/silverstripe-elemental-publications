@@ -30,7 +30,7 @@ class ElementPublicationListTest extends SapphireTest
         $fileIDs = $this->allFixtureIDs(File::class);
         foreach ($fileIDs as $fileID) {
             /** @var File $file */
-            $file = DataObject::get_by_id(File::class, $fileID);
+            $file = \SilverStripe\Assets\File::get()->setUseCache(true)->byID($fileID);
             $file->setFromString(str_repeat('x', 1000000), $file->getFilename());
         }
     }
