@@ -96,6 +96,14 @@ class ElementPublicationList extends ElementContent
         'CoreLinks'
     ];
 
+    private static array $cascade_deletes = [
+        'CoreElementLinks',
+    ];
+
+    private static array $cascade_duplicates = [
+        'CoreElementLinks',
+    ];
+
     /**
      * @var string
      */
@@ -212,13 +220,18 @@ class ElementPublicationList extends ElementContent
         return $fields;
     }
 
+    public function DerivedLinks(): \SilverStripe\Model\List\SS_List
+    {
+        return $this->getDerivedLinks();
+    }
+
     /**
      * Return the links as a list for templates
      */
-    public function getLinks(): \SilverStripe\Model\List\SS_List
+    public function getDerivedLinks(): \SilverStripe\Model\List\SS_List
     {
         $coreLinks = $this->CoreLinks()->sort(['Sort' => 'ASC']);
-        $unmigratedLinks = $this->getManyManyComponents('Links')->filter(['IsMigrated' => 0]);
+        $unmigratedLinks = $this->Links()->filter(['IsMigrated' => 0]);
         if ($unmigratedLinks->count() == 0) {
             // all migrated, show all core button links found
             return $coreLinks;
@@ -249,6 +262,11 @@ class ElementPublicationList extends ElementContent
         return _t(self::class . '.BlockType', 'Publication Listing');
     }
 
+    public function Items(): ArrayList
+    {
+        return $this->getItems();
+    }
+
     /**
      * Return items
      */
@@ -256,7 +274,7 @@ class ElementPublicationList extends ElementContent
     {
         $list = ArrayList::create();
         $files = $this->Files();
-        $links = $this->getLinks();
+        $links = $this->getDerivedLinks();
         if ($files->count() > 0) {
             $list->merge($files->toArray());
         }
