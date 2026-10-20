@@ -97,11 +97,11 @@ class ElementPublicationList extends ElementContent
     ];
 
     private static array $cascade_deletes = [
-        'CoreElementLinks',
+        'CoreLinks',
     ];
 
     private static array $cascade_duplicates = [
-        'CoreElementLinks',
+        'CoreLinks',
     ];
 
     /**
