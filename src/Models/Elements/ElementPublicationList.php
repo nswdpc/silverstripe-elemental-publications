@@ -10,6 +10,8 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\DropdownField;
 use gorriecoe\Link\Models\Link;
 use gorriecoe\LinkField\LinkField;
+use SilverStripe\LinkField\Models\Link as CoreLink;
+use SilverStripe\LinkField\Form\MultiLinkField as CoreMultiLinkField;
 
 /**
  * Elemental content block for publications listing
@@ -17,6 +19,7 @@ use gorriecoe\LinkField\LinkField;
  * @property ?string $SortDir
  * @method \SilverStripe\ORM\ManyManyList<\SilverStripe\Assets\File> Files()
  * @method \SilverStripe\ORM\ManyManyList<\gorriecoe\Link\Models\Link> Links()
+ * @method \SilverStripe\ORM\HasManyList<\SilverStripe\LinkField\Models\Link> CoreLinks()
  */
 class ElementPublicationList extends ElementContent
 {
@@ -72,6 +75,13 @@ class ElementPublicationList extends ElementContent
     /**
      * @inheritdoc
      */
+    private static array $has_many = [
+        'CoreLinks' => CoreLink::class . '.Owner'
+    ];
+
+    /**
+     * @inheritdoc
+     */
     private static array $many_many_extraFields = [
         'Links' => [
             'Sort' => 'Int'
@@ -81,7 +91,18 @@ class ElementPublicationList extends ElementContent
     /**
      * @inheritdoc
      */
-    private static array $owns = ['Files'];
+    private static array $owns = [
+        'Files',
+        'CoreLinks'
+    ];
+
+    private static array $cascade_deletes = [
+        'CoreLinks',
+    ];
+
+    private static array $cascade_duplicates = [
+        'CoreLinks',
+    ];
 
     /**
      * @var string
@@ -163,25 +184,73 @@ class ElementPublicationList extends ElementContent
                 _t(self::class . '.SORT_DIRECTION_CHOOSE', 'Choose')
             );
 
-            $files = UploadField::create(
+            $fileField = UploadField::create(
                 'Files',
                 _t(self::class . '.FILES', 'Files')
             )->setAllowedFileCategories('document')
             ->setFolderName("Uploads/publications/{$this->Title}-{$this->ID}");
 
-            $links = LinkField::create(
-                'Links',
-                _t(self::class . '.LINKS', 'Links'),
-                $this
+
+            // Show core links field for adding new links
+            $fields->removeByName(['CoreLinks','Links']);
+            $coreLinkField = CoreMultiLinkField::create(
+                'CoreLinks',
+                _t(self::class . '.LINKS', 'Links')
             );
+            $fields->addFieldToTab('Root.Links', $coreLinkField);
+
+            // If unmigrated links are available
+            $hasUnmigratedLinks = $this->getManyManyComponents('Links')->filter(['IsMigrated' => 0]);
+            if ($hasUnmigratedLinks->count() > 0) {
+                $fields->insertAfter(
+                    'CoreLinks',
+                    LinkField::create(
+                        'Links',
+                        _t(self::class . '.LINKS_LEGACY', 'Links (legacy)'),
+                        $this
+                    )
+                );
+            }
 
             $fields->addFieldToTab('Root.Main', $sortType);
             $fields->addFieldToTab('Root.Main', $sortDir);
-            $fields->addFieldToTab('Root.Files', $files);
-            $fields->addFieldToTab('Root.Links', $links);
+            $fields->addFieldToTab('Root.Files', $fileField);
         }
 
         return $fields;
+    }
+
+    public function DerivedLinks(): \SilverStripe\Model\List\SS_List
+    {
+        return $this->getDerivedLinks();
+    }
+
+    /**
+     * Return the links as a list for templates
+     */
+    public function getDerivedLinks(): \SilverStripe\Model\List\SS_List
+    {
+        $coreLinks = $this->CoreLinks()->sort(['Sort' => 'ASC']);
+        $unmigratedLinks = $this->Links()->filter(['IsMigrated' => 0]);
+        if ($unmigratedLinks->count() == 0) {
+            // all migrated, show all core button links found
+            return $coreLinks;
+        }
+
+        $result = ArrayList::create();
+        // get all new 'core' button links
+        foreach ($coreLinks as $coreLink) {
+            $result->push($coreLink);
+        }
+
+        // add on any unmigrated buttons
+        foreach ($unmigratedLinks as $unmigratedLink) {
+            // not yet migrated
+            $result->push($unmigratedLink);
+        }
+
+        // return sorted result
+        return $result->sort(['Sort' => 'ASC']);
     }
 
     /**
@@ -193,6 +262,11 @@ class ElementPublicationList extends ElementContent
         return _t(self::class . '.BlockType', 'Publication Listing');
     }
 
+    public function Items(): ArrayList
+    {
+        return $this->getItems();
+    }
+
     /**
      * Return items
      */
@@ -200,12 +274,12 @@ class ElementPublicationList extends ElementContent
     {
         $list = ArrayList::create();
         $files = $this->Files();
-        $links = $this->Links();
-        if ($files) {
+        $links = $this->getDerivedLinks();
+        if ($files->count() > 0) {
             $list->merge($files->toArray());
         }
 
-        if ($links) {
+        if ($links->count() > 0) {
             $list->merge($links->toArray());
         }
 
@@ -222,7 +296,7 @@ class ElementPublicationList extends ElementContent
             $direction = static::DEFAULT_SORT_DIR;
         }
 
-        return $list->sort($type, $direction);
+        return $list->sort([$type => $direction]);
     }
 
     /**

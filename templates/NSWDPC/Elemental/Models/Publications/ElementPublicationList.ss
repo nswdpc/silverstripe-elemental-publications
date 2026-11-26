@@ -9,7 +9,7 @@
         <ul class="items">
             <% loop $Items %>
                 <% if $Extension %>
-                    <li><a href="{$Link}">{$Title}</a> ({$Extension.UpperCase}, {$Size})</li>
+                    <li><a href="{$Link}"<% if $OpenInNewWindow %> target="_blank"<% end_if %>>{$Title}</a> ({$Extension.UpperCase}, {$Size})</li>
                 <% else %>
                     <li>{$Me}</li>
                 <% end_if %>
